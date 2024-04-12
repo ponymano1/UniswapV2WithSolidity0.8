@@ -1,0 +1,20 @@
+forge create --rpc-url $GANACHE_URL --private-key $PRIVATE_KEY ./src/v2-periphery/test/WETH9.sol:WETH9
+//weth:0x90527465701383F60ad4cfA4617B70B84e30857c
+
+forge create --rpc-url $GANACHE_URL --private-key $PRIVATE_KEY ./src/v2-core/UniswapV2Factory.sol:UniswapV2Factory --constructor-args "0xf74e5be3e4dc89362484a29eCA88718Af276BEB6"
+//factory:0x77073baF5b076f032Edc5e7000E82Fce8C8e24A3
+
+forge create --rpc-url $GANACHE_URL --private-key $PRIVATE_KEY ./src/v2-periphery/UniswapV2Router02.sol:UniswapV2Router02 --constructor-args "0x77073baF5b076f032Edc5e7000E82Fce8C8e24A3" "0x90527465701383F60ad4cfA4617B70B84e30857c"
+//router:0x475221BE467a62eb2f0c654B08B696F3a5546f5f
+
+
+//第二个uniswap v2
+forge create --rpc-url $GANACHE_URL --private-key $PRIVATE_KEY ./src/v2-core/UniswapV2Factory.sol:UniswapV2Factory --constructor-args "0xf74e5be3e4dc89362484a29eCA88718Af276BEB6"
+//factory:0x41E1FCB06Ed97B345F3B73ECF6ECb1C20a09FA0e
+
+forge create --rpc-url $GANACHE_URL --private-key $PRIVATE_KEY ./src/v2-periphery/UniswapV2Router02.sol:UniswapV2Router02 --constructor-args "0x41E1FCB06Ed97B345F3B73ECF6ECb1C20a09FA0e" "0x90527465701383F60ad4cfA4617B70B84e30857c"
+//router:0xAb379DE430F22040c1ce917BE63F01bDa68fbbb3
+
+
+cast call 0x583ba5b471EE07AAD4af09eFb75852f69B50bA8F "totalSupply()(uint256)" --rpc-url $GANACHE_URL
+cast balance 0xf74e5be3e4dc89362484a29eCA88718Af276BEB6 --rpc-url $GANACHE_URL
