@@ -128,3 +128,45 @@ sequenceDiagram
 tokenA = LPToken / PriceA = LPToken * reserveA / LP totalSupply
 
 tokenB = LPToken / PriceB = LPToken * reserveB / LP totalSupply
+
+### Swap
+```mermaid
+sequenceDiagram
+    participant User
+    participant UniswapV2Router02
+    participant UniswapV2Library
+    participant UniswapV2Factory
+    participant UniswapV2Pair
+    participant ERC20TokenA
+    participant ERC20TokenB
+    participant WETH
+
+    User->>UniswapV2Router02: swapExactTokensForTokens(amountIn, amountOutMin, path, to, deadline)
+    UniswapV2Router02->>UniswapV2Factory: getPair(tokenA, tokenB)
+    UniswapV2Factory-->>UniswapV2Router02: pairAddress
+    loop for each pair in path
+        UniswapV2Router02->>UniswapV2Pair: getReserves()
+        UniswapV2Pair-->>UniswapV2Router02: reserveA, reserveB
+        UniswapV2Router02->>UniswapV2Library: getAmountOut(amountIn, reserveIn, reserveOut)
+        UniswapV2Library-->>UniswapV2Router02: amountOut
+        UniswapV2Router02->>ERC20TokenA: transferFrom(msg.sender, pairAddress, amountIn)
+        UniswapV2Router02->>UniswapV2Pair: swap(amount0Out, amount1Out, to, data)
+        UniswapV2Pair->>ERC20TokenA: transfer(to, amountOut)
+        UniswapV2Pair->>ERC20TokenB: transfer(to, amountOut)
+        UniswapV2Pair-->>UniswapV2Router02: amountOut
+    end
+    UniswapV2Router02->>UniswapV2Router02: require(amountOut >= amountOutMin, 'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT')
+    alt tokenA == WETH
+        UniswapV2Router02->>WETH: deposit()
+        WETH-->>UniswapV2Router02: amountIn
+    else
+        UniswapV2Router02->>ERC20TokenA: transferFrom(msg.sender, address(this), amountIn)
+    end
+    alt tokenB == WETH
+        UniswapV2Router02->>WETH: withdraw(amountOut)
+        WETH-->>User: amountOut
+    else
+        UniswapV2Router02->>ERC20TokenB: transfer(to, amountOut)
+    end
+    UniswapV2Router02-->>User: amountOut
+```
