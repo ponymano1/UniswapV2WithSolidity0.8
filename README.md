@@ -126,4 +126,5 @@ sequenceDiagram
     UniswapV2Router02-->>User: amountA, amountB
 ```
 tokenA = LPToken / PriceA = LPToken * reserveA / LP totalSupply
+
 tokenB = LPToken / PriceB = LPToken * reserveB / LP totalSupply
