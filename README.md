@@ -1,5 +1,37 @@
 # Uniswap v2 with Solidity Version 0.8
-## 
+
+The Solidity version of Uniswap V2 is quite old, and if I want to modify some code according to business needs, compatibility is required. Therefore, I upgraded the Solidity version to 0.8.
+
+# Uniswap V2 Core Code Note
+The core code of Uniswap primarily consists of the following parts:
+**Factory Contract**: This is where new pair contracts are created. When users want to create a new pair, they call the createPair function of the factory contract.
+*Important*: createPair calls create2 to create pair contract.
+```
+bytes memory bytecode = type(UniswapV2Pair).creationCode;
+bytes32 salt = keccak256(abi.encodePacked(token0, token1));
+assembly {
+    pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
+}
+```
+```
+function pairFor(address factory, address tokenA, address tokenB) internal pure returns (address pair) {
+    (address token0, address token1) = sortTokens(tokenA, tokenB);
+    pair = address(uint160(uint(keccak256(abi.encodePacked(
+            hex'ff',
+            factory,
+            keccak256(abi.encodePacked(token0, token1)),
+            hex'b3adfcd878e487d3bb5e7a47d04a2410563ef8162dbd7d432ea2f85650f18731' // init code hash
+        )))));
+}
+```
+So, any code change of pair contract need to recalcultate the pair address.
+
+***Pair Contract***: This is where liquidity is stored and managed. Each pair has its own contract, which contains the reserves of two tokens. Users can add or remove liquidity to the pair contract, or make trades.
+
+***Router Contract***: This is the main interface for users to interact with Uniswap. It contains functions for adding liquidity, removing liquidity, and making trades. These functions typically call functions of the pair contract to perform their tasks.
+
+
+## mathematical model
 TokenA * TokenB = K
 
 ## UML
